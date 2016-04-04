@@ -1,0 +1,92 @@
+{
+  "db": "cache_development_7253",
+  "user": "user",
+  "outputSchema": "extra_modules",
+  "cache": [
+    {
+      "type": "normal",
+      "schema": "public",
+      "table": "Address",
+      "foreignSchema": "public",
+      "foreignTable": "Person",
+      "foreignPk": "idNo",
+      "fk": "personIdNo",
+      "columns": [
+        {
+          "value": "idCode",
+          "cache": "cacheAddresses",
+          "cacheType": "concat"
+        },
+        {
+          "value": "transitCodes",
+          "cache": "cacheTransitCodes",
+          "cacheType": "concat"
+        },
+        {
+          "value": "point",
+          "cache": "cachePoint",
+          "cacheType": "sum"
+        },
+        {
+          "value": "label",
+          "cache": "cacheLabel",
+          "cacheType": "concat"
+        }
+      ]
+    },
+    {
+      "type": "normal",
+      "table": "LineItem",
+      "foreignTable": "Product",
+      "foreignPk": "code",
+      "fk": "productCode",
+      "columns": [
+        {
+          "value": "code",
+          "cache": "cacheLineItems",
+          "cacheType": "concat"
+        },
+        {
+          "value": "invoiceCode",
+          "cache": "cacheInvoices",
+          "cacheType": "concat"
+        },
+        {
+          "value": "total",
+          "cache": "cacheTotal",
+          "cacheType": "sum"
+        }
+      ]
+    },
+    {
+      "type": "recursive",
+      "table": "Product",
+      "pk": "code",
+      "fk": "parentProductCode",
+      "parents": "cacheParents",
+      "children": "cacheChildren",
+      "columns": [
+        {
+          "value": "cacheInvoices",
+          "cache": "cacheChildrenInvoices",
+          "cacheType": "concat"
+        },
+        {
+          "value": "cacheLineItems",
+          "cache": "cacheChildrenLineItems",
+          "cacheType": "concat"
+        },
+        {
+          "value": "cacheTotal",
+          "cache": "cacheChildrenTotal",
+          "cacheType": "sum"
+        },
+        {
+          "value": "tag",
+          "cache": "cacheChildrenTags",
+          "cacheType": "concat"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{%- macro termHasValue(columnName, row, cacheType) -%}
+    {%- if cacheType == 'concat' or not cacheType -%}
+        ({{ row }}."{{ columnName }}" IS NOT NULL AND {{ row }}."{{ columnName }}"::TEXT <> '{}')
+        {%- elif cacheType == 'sum' -%}
+        ({{ row }}."{{ columnName }}" IS NOT NULL AND {{ row }}."{{ columnName }}" <> 0)
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro termIsDistinct(columnName) -%}
+    OLD."{{ columnName }}" IS DISTINCT FROM NEW."{{ columnName }}"
+{%- endmacro -%}
+
+{%- macro name(schema, object) -%}
+    {%- if (schema == 'public' or not schema) -%}
+        {{ object }}
+    {%- else -%}
+        {{ schema }}_{{ object }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro iName(schema, object) -%}
+    {%- if (schema == 'public' or not schema) -%}
+        "{{ object }}"
+    {%- else -%}
+        "{{ schema }}"."{{ object }}"
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro termRemove(columnObject, isRecursive) -%}
+    {%- if isRecursive -%}
+        {%- if columnObject.cacheType == 'sum' -%}
+            - (COALESCE(OLD."{{ columnObject.value }}", 0) + COALESCE(OLD."{{ columnObject.cache }}", 0))
+        {%- else -%}
+            -# (OLD."{{ columnObject.value }}" || OLD."{{ columnObject.cache }}")
+        {%- endif -%}
+    {%- else -%}
+        {%- if columnObject.cacheType == 'sum' -%}
+            - COALESCE(OLD."{{ columnObject.value }}", 0)
+        {%- else -%}
+            -# OLD."{{ columnObject.value }}"
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro termAdd(columnObject, isRecursive) -%}
+    {%- if isRecursive -%}
+        {%- if columnObject.cacheType == 'sum' -%}
+            + COALESCE(NEW."{{ columnObject.value }}", 0) + COALESCE(NEW."{{ columnObject.cache }}", 0)
+        {%- else -%}
+            || NEW."{{ columnObject.value }}" || NEW."{{ columnObject.cache }}"
+        {%- endif -%}
+    {%- else -%}
+        {%- if columnObject.cacheType == 'sum' -%}
+            + COALESCE(NEW."{{ columnObject.value }}", 0)
+        {%- else -%}
+            || NEW."{{ columnObject.value }}"
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+
+{% macro query(op, columns, isRecursive) %}
+    {%- set sep = joiner(separator) %}
+    {%- set macroRef = { add: termAdd, remove: termRemove } %}
+
+    {%- for columnObject in columns -%}
+        {{ sep() }} "{{ columnObject.cache }}" = {{ 'array_remove(' if columnObject.cacheType == 'concat' }}"{{ columnObject.cache }}"
+
+        {%- if op == 'add' or op == 'remove' -%}
+            {{ macroRef[op](columnObject, isRecursive) }}
+        {%- else -%}
+            {{ termAdd(columnObject, isRecursive) }} {{ termRemove(columnObject, isRecursive) }}
+        {%- endif -%}
+        {{ ", NULL)" | safe if columnObject.cacheType == 'concat' }}
+    {%- endfor -%}
+{% endmacro %}
+
+
+
+
+
+
+
+
+{%- macro isDistinctValue(columns) -%}
+    {%- set sep = joiner(' OR') %}
+    {%- for columnObject in columns -%}
+        {{ sep() }} {{ termIsDistinct(columnObject.value, row) }}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro hasValue(columns, row) -%}
+    {%- set sep = joiner(' OR') %}
+    {%- for columnObject in columns -%}
+        {{ sep() }} {{ termHasValue(columnObject.value, row, columnObject.cacheType) }}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro valueColumn(columns) -%}
+    {%- set sep = joiner(',') %}
+    {%- for columnObject in columns -%}
+        {{ sep() }} "{{ columnObject.value }}"
+    {%- endfor -%}
+{%- endmacro -%}
+
+{% macro allColumns(macroRef, columns, separator, row) %}
+    {%- set sep = joiner(separator) %}
+    {%- for columnObject in columns -%}
+        {{ sep() }} {{ macroRef(columnObject, row) }}
+    {%- endfor -%}
+{% endmacro %}
