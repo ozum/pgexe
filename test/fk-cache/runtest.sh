@@ -17,10 +17,10 @@ psql -f $file_dir/utility/create-test-db.sql -U user -d $db --no-password --echo
 psql -f $file_dir/utility/create-test-objects.sql -U user -d $db --no-password --echo-errors -q;
 
 # Test DB
-#pgexe fk-cache-create -d $db $file_dir/utility/fk-cache.json;
-#pg_prove -d $db -U user $file_dir/*.sql;
+pgexe fk-cache-create -d $db $file_dir/utility/fk-cache.json;
+pg_prove -d $db -U user $file_dir/*.sql;
 #pg_prove -d $db -U user $file_dir/002-cache_recursive.sql;
 #pg_prove -d $db -U user $file_dir/002c-cache_recursive.sql;
 #psql -f $file_dir/utility/data_bulk.sql -U user -d $db --no-password --echo-errors -q;
 
-#dropdb -h 127.0.0.1 -U user --no-password $db;
+dropdb -h 127.0.0.1 -U user --no-password $db;
