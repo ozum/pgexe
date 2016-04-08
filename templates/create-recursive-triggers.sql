@@ -82,9 +82,9 @@ $body$
 LANGUAGE 'plpgsql' VOLATILE CALLED ON NULL INPUT SECURITY INVOKER COST 100;
 
  -- object recreation
-DROP TRIGGER IF EXISTS "fkc_recursive_{{ name(schema, table) }}_insert" ON {{ iName(schema, table) }};
+DROP TRIGGER IF EXISTS "{{ triggerPrefix }}fkc_recursive_{{ name(schema, table) }}_insert" ON {{ iName(schema, table) }};
 
-CREATE TRIGGER "fkc_recursive_{{ name(schema, table) }}_insert"
+CREATE TRIGGER "{{ triggerPrefix }}fkc_recursive_{{ name(schema, table) }}_insert"
     AFTER INSERT ON {{ iName(schema, table) }} FOR EACH ROW
     {#- If record has foreign key, and has values, add them to to foreign record. #}
     WHEN (NEW."{{ fk }}" IS NOT NULL AND (NEW."{{ fk }}" IS NOT NULL OR {{ hasValue(columns, 'NEW') }}))
@@ -117,9 +117,9 @@ $body$
 LANGUAGE 'plpgsql' VOLATILE CALLED ON NULL INPUT SECURITY INVOKER COST 100;
 
  -- object recreation
-DROP TRIGGER IF EXISTS "fkc_recursive_{{ name(schema, table) }}_delete" ON {{ iName(schema, table) }};
+DROP TRIGGER IF EXISTS "{{ triggerPrefix }}fkc_recursive_{{ name(schema, table) }}_delete" ON {{ iName(schema, table) }};
 
-CREATE TRIGGER "fkc_recursive_{{ name(schema, table) }}_delete"
+CREATE TRIGGER "{{ triggerPrefix }}fkc_recursive_{{ name(schema, table) }}_delete"
     AFTER DELETE ON {{ iName(schema, table) }} FOR EACH ROW
     {#- If old record has foreign key and has values. Remove them from foreign record. #}
     WHEN (OLD."{{ fk }}" IS NOT NULL AND (OLD."{{ fk }}" IS NOT NULL OR {{ hasValue(columns, 'OLD') }}))
@@ -175,9 +175,9 @@ $body$
 LANGUAGE 'plpgsql' VOLATILE CALLED ON NULL INPUT SECURITY INVOKER COST 100;
 
  -- object recreation
-DROP TRIGGER IF EXISTS "fkc_recursive_{{ name(schema, table) }}_update" ON {{ iName(schema, table) }};
+DROP TRIGGER IF EXISTS "{{ triggerPrefix }}fkc_recursive_{{ name(schema, table) }}_update" ON {{ iName(schema, table) }};
 
-CREATE TRIGGER "fkc_recursive_{{ name(schema, table) }}_update"
+CREATE TRIGGER "{{ triggerPrefix }}fkc_recursive_{{ name(schema, table) }}_update"
     AFTER UPDATE OF "{{ fk }}", {{ valueColumn(columns) }} ON {{ iName(schema, table) }} FOR EACH ROW
     {#- Execute if FK is changed or FK is not null and one of the values is changed #}
     WHEN (OLD."{{ pk }}" <> NEW."{{ pk }}" OR OLD."{{ fk }}" IS DISTINCT FROM NEW."{{ fk }}" OR (NEW."{{ fk }}" IS NOT NULL AND (NEW."{{ fk }}" IS NOT NULL OR {{ isDistinctValue(columns) }})))

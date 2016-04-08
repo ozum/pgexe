@@ -11,6 +11,7 @@
       "foreignTable": "Person",
       "foreignPk": "idNo",
       "fk": "personIdNo",
+      "triggerPrefix": "_01_",
       "columns": [
         {
           "value": "idCode",
@@ -40,6 +41,7 @@
       "foreignTable": "Product",
       "foreignPk": "code",
       "fk": "productCode",
+      "triggerPrefix": "_01_",
       "columns": [
         {
           "value": "code",
@@ -65,6 +67,7 @@
       "fk": "parentProductCode",
       "parents": "cacheParents",
       "children": "cacheChildren",
+      "triggerPrefix": "_01_",
       "columns": [
         {
           "value": "cacheInvoices",
