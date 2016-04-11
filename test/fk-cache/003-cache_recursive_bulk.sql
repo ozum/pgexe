@@ -42,3 +42,4 @@ SELECT test_calculate_product_chain();
 SELECT results_eq('SELECT * FROM "vProduct"', 'SELECT * FROM "vProductCalculated"',
     'Delete Invoice 2');
 
+SELECT * FROM finish();
