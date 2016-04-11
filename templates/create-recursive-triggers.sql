@@ -30,7 +30,7 @@
 
 {%- macro addToParents() -%}
     -- ADD CHILDREN TO PARENTS
-    UPDATE {{ iName(schema, table) }} SET "{{ children }}" = array_remove(cache_fk_array_insert("{{ children }}", NEW."{{ fk }}", NEW."{{ pk }}" || COALESCE(NEW."{{ children }}", '{}')), NULL),
+    UPDATE {{ iName(schema, table) }} SET "{{ children }}" = array_remove(fkc_array_insert("{{ children }}", NEW."{{ fk }}", NEW."{{ pk }}" || COALESCE(NEW."{{ children }}", '{}')), NULL),
         {{ query('add', columns, true) }}
         WHERE "{{ pk }}" = ANY(NEW."{{ fk }}" || COALESCE(v_parent."{{ parents }}", '{}'));
 {%- endmacro -%}
@@ -42,7 +42,7 @@
 {%- endmacro -%}
 
 {%- macro addRemoveQuery() -%}
-    UPDATE {{ iName(schema, table) }} SET "{{ children }}" = array_remove(cache_fk_array_insert("{{ children }}", NEW."{{ fk }}", NEW."{{ pk }}" || COALESCE(NEW."{{ children }}", '{}')) -# (OLD."{{ pk }}" || COALESCE(OLD."{{ children }}", '{}')), NULL),
+    UPDATE {{ iName(schema, table) }} SET "{{ children }}" = array_remove(fkc_array_insert("{{ children }}", NEW."{{ fk }}", NEW."{{ pk }}" || COALESCE(NEW."{{ children }}", '{}')) -# (OLD."{{ pk }}" || COALESCE(OLD."{{ children }}", '{}')), NULL),
         {{ query('addRemove', columns, true) }}
         WHERE "{{ pk }}" = ANY(NEW."{{ parents }}");
 {%- endmacro -%}

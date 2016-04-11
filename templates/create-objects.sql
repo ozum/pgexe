@@ -10,7 +10,7 @@
     CREATE SCHEMA IF NOT EXISTS "{{ outputSchema }}";
 {%- endif %}
 
-CREATE OR REPLACE FUNCTION {{ functionSchema() }}.cache_fk_array_insert (
+CREATE OR REPLACE FUNCTION {{ functionSchema() }}.fkc_array_insert (
   source pg_catalog.anyarray,
   element pg_catalog.anyelement,
   new_elements pg_catalog.anyarray
@@ -33,7 +33,7 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
 
-COMMENT ON FUNCTION {{ functionSchema() }}.cache_fk_array_insert(source pg_catalog.anyarray, element pg_catalog.anyelement, new_elements pg_catalog.anyarray)
+COMMENT ON FUNCTION {{ functionSchema() }}.fkc_array_insert(source pg_catalog.anyarray, element pg_catalog.anyelement, new_elements pg_catalog.anyarray)
 IS '(anyarray source, anyelement element, anyarray new_elements)
 
 new_elements array''indeki değerleri source array''indeki element elemanının
@@ -41,7 +41,7 @@ arkasına yerleştirir. Depth first array''ler için faydalı.';
 
 
 
-CREATE OR REPLACE FUNCTION {{ functionSchema() }}.cache_fk_array_insert (
+CREATE OR REPLACE FUNCTION {{ functionSchema() }}.fkc_array_insert (
   source pg_catalog.anyarray,
   element pg_catalog.anyelement,
   new_elements pg_catalog.anyelement
@@ -64,7 +64,7 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
 
-COMMENT ON FUNCTION {{ functionSchema() }}.cache_fk_array_insert(source pg_catalog.anyarray, element pg_catalog.anyelement, new_elements pg_catalog.anyelement)
+COMMENT ON FUNCTION {{ functionSchema() }}.fkc_array_insert(source pg_catalog.anyarray, element pg_catalog.anyelement, new_elements pg_catalog.anyelement)
 IS '(anyarray source, anyelement element, anyelement new_element)
 
 new_element değerini source array''indeki element elemanının
@@ -72,7 +72,7 @@ arkasına yerleştirir. Depth first array''ler için faydalı.';
 
 
 
-CREATE OR REPLACE FUNCTION {{ functionSchema() }}.cache_fk_array_subtract (
+CREATE OR REPLACE FUNCTION {{ functionSchema() }}.fkc_array_subtract (
   inout lv pg_catalog.anyarray,
   rv pg_catalog.anyarray
 )
@@ -100,7 +100,7 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
 
-COMMENT ON FUNCTION {{ functionSchema() }}.cache_fk_array_subtract(inout lv pg_catalog.anyarray, rv pg_catalog.anyarray)
+COMMENT ON FUNCTION {{ functionSchema() }}.fkc_array_subtract(inout lv pg_catalog.anyarray, rv pg_catalog.anyarray)
 IS '(inout anyarray lv , anyarray rv)
 
 Removes all elements in rv array from lv array only one time on first occurence.
@@ -114,7 +114,7 @@ Array must be one-dimensional.';
 
 
 
-CREATE OR REPLACE FUNCTION {{ functionSchema() }}.cache_fk_array_subtract (
+CREATE OR REPLACE FUNCTION {{ functionSchema() }}.fkc_array_subtract (
   inout lv pg_catalog.anyarray,
   rv pg_catalog.anynonarray
 )
@@ -140,7 +140,7 @@ CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
 
-COMMENT ON FUNCTION {{ functionSchema() }}.cache_fk_array_subtract(inout lv pg_catalog.anyarray, rv pg_catalog.anynonarray)
+COMMENT ON FUNCTION {{ functionSchema() }}.fkc_array_subtract(inout lv pg_catalog.anyarray, rv pg_catalog.anynonarray)
 IS '(inout anyarray lv, anyelement rv)
 
 Removes first element equal to the given value from the array. Array must be
@@ -148,11 +148,11 @@ one-dimensional.';
 
 
 DROP OPERATOR IF EXISTS {{ functionSchema() }}.-# (anyarray, anynonarray);
-CREATE OPERATOR {{ functionSchema() }}.-# ( PROCEDURE = {{ functionSchema() }}.cache_fk_array_subtract,
+CREATE OPERATOR {{ functionSchema() }}.-# ( PROCEDURE = {{ functionSchema() }}.fkc_array_subtract,
 LEFTARG = anyarray, RIGHTARG = anynonarray);
 
 DROP OPERATOR IF EXISTS {{ functionSchema() }}.-# (anyarray, anyarray);
-CREATE OPERATOR {{ functionSchema() }}.-# ( PROCEDURE = {{ functionSchema() }}.cache_fk_array_subtract,
+CREATE OPERATOR {{ functionSchema() }}.-# ( PROCEDURE = {{ functionSchema() }}.fkc_array_subtract,
 LEFTARG = anyarray, RIGHTARG = anyarray);
 
 
