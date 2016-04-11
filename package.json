@@ -1,6 +1,6 @@
 {
   "name": "pgexe",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Helper generators and functions for PostgreSQL database.",
   "main": "index.js",
   "scripts": {
